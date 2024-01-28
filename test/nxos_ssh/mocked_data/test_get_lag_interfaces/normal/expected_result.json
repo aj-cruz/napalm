@@ -1,0 +1,50 @@
+{
+    "port-channel1": {
+        "status": "up",
+        "protocol": "lacp(active)",
+        "members": {
+            "Ethernet1/1": {
+                "status": "up",
+                "flags": [
+                    "P"
+                ]
+            },
+            "Ethernet1/2": {
+                "status": "up",
+                "flags": [
+                    "P"
+                ]
+            }
+        }
+    },
+    "port-channel2": {
+        "status": "up",
+        "protocol": "lacp(passive)",
+        "members": {
+            "Ethernet1/3": {
+                "status": "up",
+                "flags": [
+                    "P"
+                ]
+            }
+        }
+    },
+    "port-channel3": {
+        "status": "up",
+        "protocol": "static",
+        "members": {
+            "Ethernet1/5": {
+                "status": "up",
+                "flags": [
+                    "P"
+                ]
+            },
+            "Ethernet1/6": {
+                "status": "up",
+                "flags": [
+                    "P"
+                ]
+            }
+        }
+    }
+}

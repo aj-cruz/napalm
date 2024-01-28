@@ -1802,3 +1802,156 @@ class NXOSSSHDriver(NXOSDriverBase):
                     break
 
         return all_stats_d
+
+    def get_lag_interfaces(self):
+        """
+        Get LAG Interface details/status.
+        This getter uses output from two different nxos commands:
+            - show port-channel summary | json
+            - show port-channel database | json
+
+        Those two commands each have different and desirable attributes.
+        For example, only the database command will tell us the lacp mode (active or passive).
+
+        Example Output:
+
+        'port-channel1': {
+            'status': 'up',
+            'protocol': 'lacp(active)',
+            'members': {
+                'Ethernet1/1': {
+                    'status': 'up',
+                    'flags': ['P']
+                },
+                'Ethernet1/2': {
+                    'status': 'up',
+                    'flags': ['P']
+                },
+            }
+        }
+        """
+
+        def _normalize_output(output):
+            """
+            The output structure types are variable for both commands.
+
+            If a single interface exists in the output, the structure will be a dictionary.
+            If multiple interfaces, the structure will be a list of dictionaries.
+
+            This is also true for the interface member child structure.
+
+            This function will normalize the output by converting single interface dictionaries
+            to single interface dictionary lists (wrap the dict in a list).
+            It will traverse the dictionaries and do the same for member interfaces.
+            """
+
+            # Normalize parent structure
+            if isinstance(output, dict):
+                output = [output]
+
+            # Normalize child structure
+            for interface in output:
+                if "TABLE_member" in interface:  # Has child structure
+                    if isinstance(interface["TABLE_member"]["ROW_member"], dict):
+                        interface["TABLE_member"]["ROW_member"] = [
+                            interface["TABLE_member"]["ROW_member"]
+                        ]
+
+            return output
+
+        def _expand_output(output):
+            """
+            To accomodate cross-referencing between the two output commands:
+
+            Expands a flattened port-channel output.
+            Makes the interface name the key of the new dictionary.
+            The value is a nested dictionary with all remaining (unchanged) key/value pairs.
+
+            It will traverse the dictionaries and do the same for member interfaces.
+            """
+            # Flatten parent structure
+            if "port-channel" in [
+                key for item in output for key in item.keys()
+            ]:  # Summary Output
+                expanded_output = {item.pop("port-channel"): item for item in output}
+            elif "interface" in [
+                key for item in output for key in item.keys()
+            ]:  # Database Output
+                expanded_output = {item.pop("interface"): item for item in output}
+
+            # Flatten child structures
+            for attributes in expanded_output.values():
+                # While we're expanding, replace the ["TABLE_member"]["ROW_member"] with "members"
+                if "TABLE_member" not in attributes:  # Port-channel has no members
+                    attributes["members"] = {}
+                else:
+                    attributes["members"] = {
+                        item.pop("port"): item
+                        for item in attributes["TABLE_member"]["ROW_member"]
+                    }
+                    attributes.pop("TABLE_member")
+
+            return expanded_output
+
+        try:
+            summary_output = self._get_command_table(
+                "show port-channel summary | json", "TABLE_channel", "ROW_channel"
+            )
+            database_output = self._get_command_table(
+                "show port-channel database | json", "TABLE_interface", "ROW_interface"
+            )
+        except AttributeError:  # When zero port-channels are configured
+            summary_output = None
+            database_output = None
+
+        lag_interfaces = {}
+        if summary_output and database_output:
+            # Normalize & expand the raw output
+            summary = _normalize_output(summary_output)
+            summary = _expand_output(summary_output)
+            database = _normalize_output(database_output)
+            database = _expand_output(database_output)
+
+            # Put the data into the final desired format
+            for interface, attributes in summary.items():
+                lag_status = "up" if attributes["status"] == "U" else "down"
+                lag_protocol = (
+                    "static"
+                    if attributes["prtcl"].lower() == "none"
+                    else attributes["prtcl"].lower()
+                )
+
+                # If lacp lag protocol, get lacp mode
+                if lag_protocol == "lacp":
+                    db_if_modes = [
+                        member_attributes["mode"]
+                        for member_attributes in database[interface]["members"].values()
+                    ]
+                    if (
+                        len(list(set(db_if_modes))) > 1
+                    ):  # shouldn't be possible (nxos shouldn't allow mixed modes), but just in case
+                        lag_protocol += "(mode mismatch)"
+                    elif len(list(set(db_if_modes))) == 1:
+                        lag_protocol += f"({db_if_modes[0]})"
+
+                # Get LAG members
+                lag_members = {}
+                for member_if, member_attributes in attributes["members"].items():
+                    lag_member_status = (
+                        "up" if member_attributes["port-status"] == "P" else "down"
+                    )
+                    lag_member_flags = [member_attributes["port-status"]]
+
+                    lag_members[member_if] = {
+                        "status": lag_member_status,
+                        "flags": lag_member_flags,
+                    }
+
+                # Build the final dictionary
+                lag_interfaces[interface] = {
+                    "status": lag_status,
+                    "protocol": lag_protocol,
+                    "members": lag_members,
+                }
+
+        return lag_interfaces

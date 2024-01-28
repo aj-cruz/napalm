@@ -574,3 +574,17 @@ class BaseTestGetters(object):
             assert helpers.test_model(models.VlanDict, vlan_data)
 
         return get_vlans
+
+    @wrap_test_cases
+    def test_get_lag_interfaces(self, test_case):
+        """Test get_lag_interfaces"""
+        get_lag_interfaces = self.device.get_lag_interfaces()
+
+        assert len(get_lag_interfaces) > 0
+
+        for if_attributes in get_lag_interfaces.values():
+            assert helpers.test_model(models.LAGInterfaceDict, if_attributes)
+            for member_if_attributes in if_attributes["members"].values():
+                assert helpers.test_model(models.LAGMemberDict, member_if_attributes)
+
+        return get_lag_interfaces

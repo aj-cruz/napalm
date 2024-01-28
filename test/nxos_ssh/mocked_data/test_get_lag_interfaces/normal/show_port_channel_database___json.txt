@@ -1,0 +1,69 @@
+{
+    "TABLE_interface": {
+        "ROW_interface": [
+            {
+                "interface": "port-channel1",
+                "last-membership-update": "successful",
+                "total-ports": "2",
+                "total-up-ports": "2",
+                "age-of-channel": "1d:03h:39m:33s",
+                "time-since-last-bundle": "1d:03h:39m:33s",
+                "last-bundled-member": "Ethernet1/2",
+                "TABLE_member": {
+                    "ROW_member": [
+                        {
+                            "port": "Ethernet1/1",
+                            "mode": "active",
+                            "port-status": "up"
+                        },
+                        {
+                            "port": "Ethernet1/2",
+                            "mode": "active",
+                            "port-status": "up"
+                        }
+                    ]
+                }
+            },
+            {
+                "interface": "port-channel2",
+                "last-membership-update": "successful",
+                "total-ports": "1",
+                "total-up-ports": "1",
+                "age-of-channel": "0d:09h:41m:33s",
+                "time-since-last-bundle": "0d:09h:41m:33s",
+                "last-bundled-member": "Ethernet1/3",
+                "TABLE_member": {
+                    "ROW_member": {
+                        "port": "Ethernet1/3",
+                        "mode": "passive",
+                        "port-status": "up"
+                    }
+                }
+            },
+            {
+                "interface": "port-channel3",
+                "last-membership-update": "successful",
+                "total-ports": "2",
+                "total-up-ports": "2",
+                "first_operational-port": "Ethernet1/6",
+                "age-of-channel": "0d:09h:41m:27s",
+                "time-since-last-bundle": "0d:09h:41m:27s",
+                "last-bundled-member": "Ethernet1/6",
+                "TABLE_member": {
+                    "ROW_member": [
+                        {
+                            "port": "Ethernet1/5",
+                            "mode": "on",
+                            "port-status": "up"
+                        },
+                        {
+                            "port": "Ethernet1/6",
+                            "mode": "on",
+                            "port-status": "up"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

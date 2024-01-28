@@ -433,6 +433,19 @@ FirewallPolicyDict = TypedDict(
 
 VlanDict = TypedDict("VlanDict", {"name": str, "interfaces": List})
 
+LAGMemberDict = TypedDict(
+    "LAGMemberDict",
+    {
+        "status": str,
+        "flags": List,
+    },
+)
+
+LAGInterfaceDict = TypedDict(
+    "LAGInterfaceDict",
+    {"status": str, "protocol": str, "members": Dict},
+)
+
 DictValidationResult = TypedDict(
     "DictValidationResult",
     {"complies": bool, "present": Dict, "missing": List, "extra": List},

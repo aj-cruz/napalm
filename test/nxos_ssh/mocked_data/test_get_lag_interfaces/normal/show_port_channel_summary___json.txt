@@ -1,0 +1,60 @@
+{
+    "TABLE_channel": {
+        "ROW_channel": [
+            {
+                "group": "1",
+                "port-channel": "port-channel1",
+                "layer": "S",
+                "status": "U",
+                "type": "Eth",
+                "prtcl": "LACP",
+                "TABLE_member": {
+                    "ROW_member": [
+                        {
+                            "port": "Ethernet1/1",
+                            "port-status": "P"
+                        },
+                        {
+                            "port": "Ethernet1/2",
+                            "port-status": "P"
+                        }
+                    ]
+                }
+            },
+            {
+                "group": "2",
+                "port-channel": "port-channel2",
+                "layer": "S",
+                "status": "U",
+                "type": "Eth",
+                "prtcl": "LACP",
+                "TABLE_member": {
+                    "ROW_member": {
+                        "port": "Ethernet1/3",
+                        "port-status": "P"
+                    }
+                }
+            },
+            {
+                "group": "3",
+                "port-channel": "port-channel3",
+                "layer": "S",
+                "status": "U",
+                "type": "Eth",
+                "prtcl": "NONE",
+                "TABLE_member": {
+                    "ROW_member": [
+                        {
+                            "port": "Ethernet1/5",
+                            "port-status": "P"
+                        },
+                        {
+                            "port": "Ethernet1/6",
+                            "port-status": "P"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

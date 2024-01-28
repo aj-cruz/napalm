@@ -644,3 +644,15 @@ class TestGettersNetworkDriver(object):
             result = result and self._test_model(models.VlanDict, vlan_data)
 
         self.assertTrue(result)
+
+    def test_get_lag_interfaces(self):
+        try:
+            get_lag_interfaces = self.device.get_lag_interfaces()
+        except NotImplementedError:
+            raise SkipTest()
+        result = len(get_lag_interfaces) > 0
+
+        for lag_data in get_lag_interfaces.values():
+            result = result and self.test_model(models.LAGInterfaceDict, lag_data)
+
+        self.assertTrue(result)

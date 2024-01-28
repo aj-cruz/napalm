@@ -1773,6 +1773,31 @@ class NetworkDriver(object):
         """
         raise NotImplementedError
 
+    def get_lag_interfaces(self) -> Dict[str, models.LAGInterfaceDict]:
+        """
+        Returns a dictionary of dictionaries with LAG interface information/status.
+        The keys for the first dictionary will be the LAG interface names in the device.
+        The inner dictionary will contain data for physical members of the LAG interfaces.
+
+        Example:
+
+        'Port-channel1': {
+            'status': 'up',
+            'protocol': 'lacp(active)',
+            'members': {
+                'Ethernet1/1': {
+                    'status': 'up',
+                    'flags': ['P']
+                },
+                'Ethernet1/2': {
+                    'status': 'up',
+                    'flags': ['P']
+                },
+            }
+        }
+        """
+        raise NotImplementedError
+
     def compliance_report(
         self,
         validation_file: Optional[str] = None,
